@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     serviceDescription: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#777',
         marginTop: 10,
         textAlign: 'center',
