@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import {
     View,
     Text,
@@ -20,6 +20,7 @@ const LaundryScreen: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
     const { width } = useWindowDimensions();
+    const scrollViewRef = useRef<ScrollView>(null);
     const isMobile = width < 768;
     const [numColumns, setNumColumns] = useState(isMobile ? 2 : 4);
     const [listKey, setListKey] = useState(String(numColumns)); // Forces re-render when changing layout
@@ -91,7 +92,13 @@ const LaundryScreen: React.FC = () => {
                 <Text style={styles.subHeader}>Select a Date</Text>
 
                 <Calendar
-                    onDayPress={(day) => setSelectedDate(day.dateString)}
+                    onDayPress={(day) => {
+                        setSelectedDate(day.dateString);
+                        setTimeout(() => {
+                            scrollViewRef.current?.scrollToEnd({ animated: true });
+                        }, 300);
+                    }}
+                    
                     markedDates={selectedDate ? { [selectedDate]: { selected: true, selectedColor: '#007BFF' } } : {}}
                     theme={{
                         selectedDayBackgroundColor: '#007BFF',
@@ -165,7 +172,8 @@ const LaundryScreen: React.FC = () => {
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} ref={scrollViewRef}>
+
 
             {/* 🔹 Custom Header */}
             <View style={styles.header}>
