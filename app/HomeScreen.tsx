@@ -44,7 +44,7 @@ const HomeScreen: React.FC = () => {
                     style={styles.logo}
                     resizeMode="contain"
                 />
-                <TouchableOpacity style={styles.serviceButton} onPress={() => navigation.navigate('Maintenance')}>
+                <TouchableOpacity style={styles.serviceButton} onPress={() => navigation.navigate('MaintenanceScreen')}>
                     <Text style={styles.serviceButtonText}>Request Service</Text>
                 </TouchableOpacity>
             </View>
@@ -77,6 +77,7 @@ const HomeScreen: React.FC = () => {
                                 else if (item === 'Saloon') navigation.navigate('Saloon');
                                 else if (item === 'Laundry') navigation.navigate('LaundryScreen');
                                 else if (item === 'Gym') navigation.navigate('Gym');
+                                else if (item === 'MaintenanceScreen') navigation.navigate('MaintenanceScreen')
                             }}>
                             <Image
                                 source={{ uri: images[item] || 'https://example.com/default.jpg' }}

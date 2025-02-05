@@ -10,7 +10,7 @@ import MedicalScreen from './MedicalScreen';
 import GatePassScreen from './GatePassScreen';
 import ClubHouseScreen from './ClubHouseScreen';
 import LaundryScreen from './LaundryScreen';
-
+import MaintenanceScreen from './MaintenanceScreen';
 // ✅ Define types for stack navigation
 export type RootStackParamList = {
   Home: undefined;
@@ -23,6 +23,7 @@ export type RootStackParamList = {
   ClubHouse: undefined;
   LaundryScreen: undefined;
   MedicalScreen: undefined;
+  MaintenanceScreen: undefined;
 };
 
 // ✅ Pass `RootStackParamList` to `createNativeStackNavigator()`
@@ -61,6 +62,11 @@ export default function App() {
            <Stack.Screen 
           name="Medical" 
           component={MedicalScreen} 
+          options={{ headerShown: false }} // Hide header
+        />
+          <Stack.Screen 
+          name="MaintenanceScreen" 
+          component={MaintenanceScreen} 
           options={{ headerShown: false }} // Hide header
         />
          <Stack.Screen 
