@@ -89,7 +89,7 @@ const LaundryScreen: React.FC = () => {
                     <Text style={styles.serviceDescription}>{selectedService.description}</Text>
                 </View>
 
-                <Text style={styles.subHeader}>Select a Date</Text>
+             
 
                 <Calendar
                     onDayPress={(day) => {
