@@ -122,6 +122,7 @@ const GroceryScreen: React.FC = () => {
           ))}
         </ScrollView>
       </View>
+      
 
       {/* Display Menu Items with Section Headers */}
       <FlatList
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     margin: 8,
     borderRadius: 8,
-    width:360,
+    width:370,
     padding: 10,
     height: 100, // Equal size for all grid items
     justifyContent: "space-between",
@@ -227,7 +228,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 10,
     marginRight:10,
-    marginLeft: 10, // Space between text and image
   },
   rightContainer: {
     flex: 1, // Takes up the remaining space
@@ -257,6 +257,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  searchContainer: { flexDirection: "row", alignItems: "center", backgroundColor: "#f0f0f0", borderRadius: 8, marginHorizontal: 16, marginVertical: 10, paddingHorizontal: 10 },
+  searchIcon: { marginRight: 8 },
+  searchInput: { flex: 1, height: 38, fontSize: 15, color: "#333" },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
