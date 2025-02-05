@@ -172,7 +172,7 @@ const ClubHouseScreen: React.FC = () => {
             <Text>{selectedOption.description}</Text>
 
             <Text >Select Date</Text>
-            <Calendar onDayPress={handleDayPress} />;
+            <Calendar onDayPress={handleDayPress} />
 
             {selectedDate && (
                 <>
