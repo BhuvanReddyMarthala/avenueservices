@@ -172,7 +172,12 @@ const LaundryScreen: React.FC = () => {
     }
 
     return (
-        <ScrollView style={styles.container} ref={scrollViewRef}>
+        <ScrollView 
+    style={styles.container} 
+    ref={scrollViewRef}
+    contentContainerStyle={{ flexGrow: 1 }} // Ensures content expands to fit the screen
+>
+
 
 
             {/* 🔹 Custom Header */}
