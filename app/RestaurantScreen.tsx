@@ -64,7 +64,7 @@ const RestaurantScreen: React.FC = () => {
   const [confirmVisible, setConfirmVisible] = useState(false);
 
   const isWideScreen = width > 800;
-  const numColumns = isWideScreen ? 4 : 1;
+  const numColumns = isWideScreen ? 3 : 1;
 
   const handleAddItem = (itemName: string) => {
     setCart((prev) => ({ ...prev, [itemName]: (prev[itemName] || 0) + 1 }));
@@ -222,8 +222,8 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 10,
-    marginRight:20,
-    marginLeft: 40, // Space between text and image
+    marginRight:10,
+    marginLeft: 10, // Space between text and image
   },
   rightContainer: {
     flex: 1, // Takes up the remaining space
