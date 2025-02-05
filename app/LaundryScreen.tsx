@@ -8,6 +8,7 @@ import {
     ImageBackground,
     Modal,
     useWindowDimensions,
+    ScrollView,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useNavigation, } from '@react-navigation/native';
@@ -43,6 +44,7 @@ const LaundryScreen: React.FC = () => {
     if (selectedService) {
         // 📌 Show Calendar when a service is selected
         return (
+            
             <View style={styles.container}>
                 {/* 🔹 Custom Header */}
                 <View style={styles.header}>
@@ -54,7 +56,7 @@ const LaundryScreen: React.FC = () => {
                         <Icon name="home" size={22} color="#333" />
                     </TouchableOpacity>
                 </View>
-                <FlatList
+                {/* <FlatList
                 key={listKey} // ✅ Forces re-render when switching views
                 data={services}
                 keyExtractor={(item) => item.id}
@@ -78,7 +80,7 @@ const LaundryScreen: React.FC = () => {
                         </ImageBackground>
                     </TouchableOpacity>
                 )}
-            />
+            /> */}
 
                 {/* Show Price and Description */}
                 <View style={styles.serviceDetails}>
@@ -163,7 +165,8 @@ const LaundryScreen: React.FC = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
+
             {/* 🔹 Custom Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
@@ -202,7 +205,7 @@ const LaundryScreen: React.FC = () => {
             />
 
         
-        </View>
+        </ScrollView>
     );
 };
 
