@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     bookingDetails: {
-        marginTop: 20,
+        marginTop:12,
         backgroundColor: '#fff',
         padding: 20,
         borderRadius: 10,
