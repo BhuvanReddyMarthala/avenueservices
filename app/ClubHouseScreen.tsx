@@ -198,9 +198,9 @@ const timeSlots = selectedOption
                 
                 imageStyle={{ borderRadius: 10 }}
             />
-            <Text>{selectedOption.description}</Text>
+            {/* <Text style={styles.serviceDetailDescription}>{selectedOption.description}</Text> */}
 
-            <Text >Select Date</Text>
+           <Text style={styles.sectionTitle}>Select Date</Text>
             <View style={styles.calendarWrapper}>
                                 <Calendar
                                     onDayPress={(day) => setSelectedDate(day.dateString)}
@@ -230,8 +230,11 @@ const timeSlots = selectedOption
 
             {selectedDate && (
                 <>
-                    <Text >Selected Date: {selectedDate}</Text>
-                    <Text >Select Time Slot</Text>
+                    <View style={styles.selectedDateContainer}>
+
+    <Text style={styles.timeSlotLabel}>Select Time Slot</Text>
+</View>
+
                     <View style={styles.timeSlotsContainer}>
                         {timeSlots.map((time) => (
                             <TouchableOpacity
@@ -445,6 +448,58 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
     },
+     sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+        marginVertical: 10,
+        textAlign: "center",
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+        marginVertical: 10,
+        textAlign: "center",
+    },
+    serviceDetailDescription: { fontSize: 16, color: '#555', marginBottom: 10 },
+    selectedDateContainer: {
+        alignItems: 'center',
+        marginVertical: 15,
+        paddingVertical: 10,
+        backgroundColor: 'white',
+        borderRadius: 10,
+       
+       
+     
+        width: '90%',
+        alignSelf: 'center'
+    },
+    
+    selectedDateText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    
+    highlight: {
+        color: '#007BFF', 
+        fontWeight: 'bold',
+    },
+    
+    divider: {
+        width: '80%',
+        height: 1,
+        backgroundColor: 'white',
+        marginVertical: 10,
+    },
+    
+    timeSlotLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#555',
+    },
+    
 });
 
 export default ClubHouseScreen;

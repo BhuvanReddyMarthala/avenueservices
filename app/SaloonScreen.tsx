@@ -232,9 +232,15 @@ const SaloonScreen: React.FC = () => {
                                 <Text style={styles.modalText}>
                                     Your appointment for {selectedService?.name} on {selectedDate} at {selectedTime} has been successfully booked.
                                 </Text>
-                                <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-                                    <Text style={styles.modalButtonText}>OK</Text>
-                                </TouchableOpacity>
+                                <TouchableOpacity 
+    onPress={() => {
+        setModalVisible(false); 
+        navigation.navigate("Home");
+    }} 
+    style={styles.modalButton}
+>
+    <Text style={styles.modalButtonText}>OK</Text>
+</TouchableOpacity>
                             </View>
                         </View>
                     </Modal>
