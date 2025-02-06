@@ -40,7 +40,7 @@ const LaundryScreen: React.FC = () => {
             <View style={styles.container}>
                 {/* 🔹 Custom Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => setSelectedService(null)} style={styles.iconContainer}>
+                    <TouchableOpacity onPress={() => setSelectedService(null)} >
                     <Ionicons name="arrow-back-outline" size={26} color="#333" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>{selectedService.name}</Text>
