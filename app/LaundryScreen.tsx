@@ -37,7 +37,7 @@ const LaundryScreen: React.FC = () => {
 
     if (selectedService) {
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 {/* 🔹 Custom Header */}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => setSelectedService(null)} >
@@ -128,7 +128,7 @@ const LaundryScreen: React.FC = () => {
                         </View>
                     </View>
                 </Modal>
-            </View>
+            </ScrollView>
         );
     }
 
