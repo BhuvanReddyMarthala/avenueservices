@@ -269,6 +269,7 @@ const timeSlots = selectedOption
                        setSelectedOption(null); // Reset selection
                        setSelectedDate(null);
                        setSelectedTime(null);
+                       navigation.navigate("Home"); // Navigate to Home after pressing OK
                    }, 2000);
                }}
            >
