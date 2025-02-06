@@ -137,7 +137,7 @@ const LaundryScreen: React.FC = () => {
             {/* 🔹 Custom Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
-                    <Icon name="arrow-left" size={iconSize} color="#333" />
+                <Ionicons name="arrow-back-outline" size={26} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Laundry Services</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
