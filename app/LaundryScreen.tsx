@@ -1,4 +1,4 @@
-import React, { useState,useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
     Text,
@@ -11,7 +11,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useNavigation, } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const LaundryScreen: React.FC = () => {
@@ -21,67 +21,32 @@ const LaundryScreen: React.FC = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const { width } = useWindowDimensions();
     const scrollViewRef = useRef<ScrollView>(null);
+
+    // 🔹 Responsive Check
     const isMobile = width < 768;
-    const [numColumns, setNumColumns] = useState(isMobile ? 2 : 4);
-    const [listKey, setListKey] = useState(String(numColumns)); // Forces re-render when changing layout
-    useEffect(() => {
-        const newNumColumns = isMobile ? 1 : 4;
-        if (newNumColumns !== numColumns) {
-            setNumColumns(newNumColumns);
-            setListKey(String(newNumColumns)); // Ensures re-rendering
-        }
-    }, [width]);
-
-
+    const iconSize = isMobile ? 22 : 28; // Dynamic icon size
 
     // 🔹 Laundry Services Data
     const services = [
-        { id: '1', name: 'Washing', price: 50, image: 'https://avenuenxt.s3.ap-southeast-1.amazonaws.com/laundry_washing_clipart.jpg', description: 'Complete washing service for clothes.' },
-        { id: '2', name: 'Ironing', price: 30, image: 'https://avenuenxt.s3.ap-southeast-1.amazonaws.com/ironing_clipart.jpg', description: 'Neatly pressed and wrinkle-free clothes.' },
-        { id: '3', name: 'Dry Cleaning', price: 120, image: 'https://media.istockphoto.com/id/526560652/vector/dry-cleaning-clothes-hanger-shirt-concept.jpg?s=612x612&w=0&k=20&c=mF8ef3vs-MxvP1__JDj_UmFfI-iM1bFuZ8jYGt1s1Ys=', description: 'Professional dry cleaning for delicate fabrics.' },
-        { id: '4', name: 'Stain Removal', price: 70, image: 'https://static.vecteezy.com/system/resources/previews/003/381/050/non_2x/stain-removal-blue-and-yellow-rgb-color-icon-vector.jpg', description: 'Removes tough stains and restores clothing.' },
+        { id: '1', name: 'Wash & Dry', price: 50, image: 'https://i.pinimg.com/736x/37/f8/3b/37f83b5a28f151e655d0f95213b8d10c.jpg', description: 'Complete washing service for clothes.' },
+        { id: '2', name: 'Wash & Iron ', price: 30, image: 'https://img.freepik.com/premium-vector/laundry-illustration-washing-machine-with-iron-ironing-board-clean-clothes_600323-89.jpg', description: 'Neatly pressed and wrinkle-free clothes.' },
+        { id: '3', name: 'Dry Cleaning', price: 120, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcVFdabz-5Cn_HsAMBg51zGCguA2XDTQz8LrC5vrTuwiVp6sGp2bJxXEfXx6zLQ65g8_w&usqp=CAU', description: 'Professional dry cleaning for delicate fabrics.' },
+        { id: '4', name: 'Express Service', price: 170, image: 'https://static.vecteezy.com/system/resources/previews/011/427/726/non_2x/express-laundry-services-concept-illustration-free-vector.jpg', description: 'Removes tough stains and restores clothing.' },
     ];
 
     if (selectedService) {
-        // 📌 Show Calendar when a service is selected
         return (
-            
             <View style={styles.container}>
                 {/* 🔹 Custom Header */}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => setSelectedService(null)} style={styles.iconContainer}>
-                        <Icon name="arrow-left" size={22} color="#333" />
+                        <Icon name="arrow-left" size={iconSize} color="#333" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>{selectedService.name}</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
-                        <Icon name="home" size={22} color="#333" />
+                        <Icon name="home" size={iconSize} color="#333" />
                     </TouchableOpacity>
                 </View>
-                {/* <FlatList
-                key={listKey} // ✅ Forces re-render when switching views
-                data={services}
-                keyExtractor={(item) => item.id}
-                numColumns={numColumns} // ✅ Dynamically set columns
-                columnWrapperStyle={numColumns > 1 ? styles.serviceRow : undefined}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={[styles.serviceCard, { width: numColumns === 1 ? "100%" : "22%" }]}
-                        onPress={() => setSelectedService(item)}
-                    >
-                        <ImageBackground
-                            source={{ uri: item.image }}
-                            style={styles.serviceImage}
-                            imageStyle={{ borderRadius: 10 }}
-                        >
-                     <View style={styles.optionOverlay}>
-                            <View style={styles.overlay}>
-                                <Text style={styles.serviceText}>{item.name}</Text>
-                            </View>
-                            </View>
-                        </ImageBackground>
-                    </TouchableOpacity>
-                )}
-            /> */}
 
                 {/* Show Price and Description */}
                 <View style={styles.serviceDetails}>
@@ -89,25 +54,33 @@ const LaundryScreen: React.FC = () => {
                     <Text style={styles.serviceDescription}>{selectedService.description}</Text>
                 </View>
 
-             
+                <Text style={styles.subHeader}>Select a Date</Text>
 
-                <Calendar
-                    onDayPress={(day) => {
-                        setSelectedDate(day.dateString);
-                        setTimeout(() => {
-                            scrollViewRef.current?.scrollToEnd({ animated: true });
-                        }, 300);
-                    }}
-                    
-                    markedDates={selectedDate ? { [selectedDate]: { selected: true, selectedColor: '#007BFF' } } : {}}
-                    theme={{
-                        selectedDayBackgroundColor: '#007BFF',
-                        todayTextColor: '#FF5722',
-                        arrowColor: '#007BFF',
-                        textDayFontWeight: '500',
-                        textMonthFontWeight: 'bold',
-                    }}
-                />
+                <View style={styles.calendarWrapper}>
+                    <Calendar
+                        onDayPress={(day) => setSelectedDate(day.dateString)}
+                        markedDates={
+                            selectedDate ? { [selectedDate]: { selected: true, selectedColor: "#6c63ff", selectedTextColor: "#fff" } } : {}
+                        }
+                        theme={{
+                            backgroundColor: "transparent",
+                            calendarBackground: "transparent",
+                            textSectionTitleColor: "#333",
+                            selectedDayBackgroundColor: "#6c63ff",
+                            selectedDayTextColor: "#fff",
+                            todayTextColor: "#6c63ff",
+                            arrowColor: "#6c63ff",
+                            monthTextColor: "#333",
+                            textDayFontWeight: "500",
+                            textMonthFontWeight: "bold",
+                            textDayHeaderFontWeight: "600",
+                            textDayFontSize: 16,
+                            textMonthFontSize: 18,
+                            textDayHeaderFontSize: 14,
+                        }}
+                        style={styles.calendar}
+                    />
+                </View>
 
                 {selectedDate && (
                     <View style={styles.bookingDetails}>
@@ -117,115 +90,90 @@ const LaundryScreen: React.FC = () => {
 
                         <TouchableOpacity
                             style={styles.confirmButton}
-                            onPress={() => setModalVisible(true)} // Open Modal instead of alert
+                            onPress={() => setModalVisible(true)}
                         >
                             <Text style={styles.confirmButtonText}>Confirm Booking</Text>
                         </TouchableOpacity>
-
                     </View>
                 )}
-                
 
-<Modal
-    animationType="slide"
-    transparent={true}
-    visible={modalVisible}
-    onRequestClose={() => setModalVisible(false)}
->
-    <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Booking Confirmation</Text>
-            <Text style={styles.modalText}>
-                You are booking <Text style={{ fontWeight: 'bold' }}>{selectedService?.name}</Text> on <Text style={{ fontWeight: 'bold' }}>{selectedDate}</Text>.
-            </Text>
+                {/* 🔹 Booking Confirmation Modal */}
+                <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Booking Confirmation</Text>
+                            <Text style={styles.modalText}>
+                                You are booking <Text style={{ fontWeight: 'bold' }}>{selectedService?.name}</Text> on <Text style={{ fontWeight: 'bold' }}>{selectedDate}</Text>.
+                            </Text>
+                            <View style={styles.modalButtons}>
+                                <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                                    <Icon name="times-circle" size={iconSize} color="#fff" />
+                                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                                </TouchableOpacity>
 
-            <View style={styles.modalButtons}>
-                <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setModalVisible(false)}
-                >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.confirmModalButton}
-                    onPress={() => {
-                        setModalVisible(false);
-                        setSelectedService(null);
-                        setSelectedDate(null);
-                    }}
-                >
-                    <Text style={styles.confirmButtonText}>Confirm</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    </View>
-</Modal>
-
-
-
-
-
-
+                                <TouchableOpacity
+                                    style={styles.confirmModalButton}
+                                    onPress={() => {
+                                        setModalVisible(false);
+                                        setSelectedService(null);
+                                        setSelectedDate(null);
+                                        navigation.navigate("Home")
+                                    }}
+                                >
+                                    <Icon name="check-circle" size={iconSize} color="#fff" />
+                                    <Text style={styles.confirmButtonText}>Confirm</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         );
     }
 
     return (
-        <ScrollView 
-    style={styles.container} 
-    ref={scrollViewRef}
-    contentContainerStyle={{ flexGrow: 1 }} // Ensures content expands to fit the screen
->
-
-
-
+        <ScrollView style={styles.container} ref={scrollViewRef} contentContainerStyle={{ flexGrow: 1 }}>
             {/* 🔹 Custom Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
-                    <Icon name="arrow-left" size={22} color="#333" />
+                    <Icon name="arrow-left" size={iconSize} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Laundry Services</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
-                    <Icon name="home" size={22} color="#333" />
+                    <Icon name="home" size={iconSize} color="#333" />
                 </TouchableOpacity>
             </View>
 
-            {/* 🔹 List of Laundry Services as Cards */}
+            {/* 🔹 List of Laundry Services */}
             <FlatList
-                key={selectedService ? 'calendar-view' : 'grid-view'} // ✅ Forces re-render when switching views
-                data={services}
-                keyExtractor={(item) => item.id}
-                numColumns={2} // ✅ Keeps a fixed grid layout
-                columnWrapperStyle={styles.serviceRow}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.serviceCard}
-                        onPress={() => setSelectedService(item)}
-                    >
-                        <ImageBackground
-                            source={{ uri: item.image }}
-                            style={styles.serviceImage}
-                            imageStyle={{ borderRadius: 15 }}
-                        >
-                            <View style={styles.overlay}>
-                                <Text style={styles.serviceText}>{item.name}</Text>
-                                {/* <Text style={styles.servicePrice}>₹{item.price}</Text> */}
-                            </View>
-                        </ImageBackground>
-                    </TouchableOpacity>
-                )}
-            />
+    key={'grid-view'}
+    data={services}
+    keyExtractor={(item) => item.id}
+    numColumns={2}
+    columnWrapperStyle={styles.serviceRow}
+    renderItem={({ item }) => (
+        <TouchableOpacity 
+            style={styles.serviceCard} 
+            onPress={() => setSelectedService(item)}
+        >
+            <ImageBackground 
+    source={{ uri: item.image }} 
+    style={styles.serviceImage} 
+    imageStyle={{ borderRadius: 0, resizeMode: 'cover' }} // Ensures full image is displayed
+/>
+            <Text style={styles.serviceTextBelow}>{item.name}</Text>
+        </TouchableOpacity>
+    )}
+/>
 
-        
+
         </ScrollView>
     );
 };
-
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F7F8FA', padding: 15 },
+    container: { flex: 1, backgroundColor: 'white', paddingHorizontal: 15 },
 
-    // 🔹 Header Styles
+    // 🔹 Header Styles (Aligned Properly)
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -242,30 +190,120 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
+        textAlign: 'center',
+        flex: 1, // Ensures proper centering of title
     },
 
-    // 🔹 Services in Grid (Two Columns)
+    // 🔹 Service Grid (Two Columns, Properly Aligned)
     serviceRow: {
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        marginVertical: 10,
     },
     serviceCard: {
-        flex: 1,
-        margin: 8,
-        height: 140,
-        borderRadius: 15,
-        overflow: 'hidden',
+        width: "45%", // Fixes two-column layout
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 10,
+        padding: 10,
+        elevation: 3, // Small shadow for better visibility
+        marginBottom: 15, // Adds spacing between rows
     },
     serviceImage: {
-        flex: 1,
-        justifyContent: 'flex-end',
+        width: 100, // Consistent size
+        height: 100,
+        borderRadius: 10,
+        resizeMode: "cover",
     },
-    optionOverlay: { backgroundColor: 'rgba(0, 0, 0, 0.5)', padding: 10 },
+    serviceTextBelow: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#333",
+        textAlign: "center",
+        marginTop: 10,
+    },
 
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // 🔹 Dark overlay for better readability
-        padding: 10,
-        borderBottomLeftRadius: 15,
-        borderBottomRightRadius: 15,
+    // 🔹 Calendar Properly Centered
+    calendarWrapper: {
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    calendar: {
+        borderRadius: 15,
+        elevation: 3,
+        backgroundColor: "#fff",
+        width: "95%", // Ensures proper width on screens
+    },
+
+    // 🔹 Booking Details (Fixed Alignment)
+    bookingDetails: {
+        marginTop: 12,
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+        elevation: 3,
+    },
+    confirmButton: {
+        marginTop: 15,
+        backgroundColor: "#007BFF",
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: "center",
+        width: "80%", // Ensures proper alignment
+    },
+    confirmButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+    // 🔹 Modal (Centered Properly)
+    modalBackground: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalContainer: {
+        width: "80%",
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        elevation: 5,
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
+        color: "#333",
+        textAlign: "center",
+    },
+    modalButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+    },
+    cancelButton: {
+        backgroundColor: "#FF3B30",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: "center",
+        flex: 1,
+        marginRight: 10,
+    },
+    confirmModalButton: {
+        backgroundColor: "#007BFF",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: "center",
+        flex: 1,
     },
     serviceText: {
         fontSize: 16,
@@ -277,8 +315,6 @@ const styles = StyleSheet.create({
         color: '#FFD700', // 🔹 Gold color for price
         fontWeight: 'bold',
     },
-
-    // 🔹 Calendar Page Styles
     subHeader: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -295,96 +331,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     serviceDescription: {
-        fontSize: 12,
+        fontSize: 10,
         color: '#777',
         marginTop: 10,
         textAlign: 'center',
     },
-    bookingDetails: {
-        marginTop:12,
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        elevation: 3,
-    },
-    confirmText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    dateText: {
-        fontSize: 14,
-        color: '#007BFF',
-        marginVertical: 10,
-    },
-    confirmButton: {
-        marginTop: 15,
-        backgroundColor: '#007BFF',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    confirmButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    modalBackground: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalContainer: {
-        width: '80%',
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        elevation: 5,
-        alignItems: 'center',
-    },
-    modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: '#333',
-    },
-    modalText: {
-        fontSize: 14,
-        textAlign: 'center',
-        color: '#555',
-        marginBottom: 20,
-    },
-    modalButtons: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-    },
-    cancelButton: {
-        backgroundColor: '#FF3B30',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        alignItems: 'center',
-        flex: 1,
-        marginRight: 10,
-    },
-    cancelButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    confirmModalButton: {
-        backgroundColor: '#007BFF',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        alignItems: 'center',
-        flex: 1,
-    },
-    
+
+
 });
+
+
 
 export default LaundryScreen;

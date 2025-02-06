@@ -1,362 +1,286 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState } from "react";
 import {
-    View,
-    Text,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-    Image,
-    Alert,
-    ScrollView,
-    Modal,
-    TextInput,
-    useWindowDimensions,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  useWindowDimensions,
+  FlatList,
+  Modal,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from ".";
 
-const MedicalScreen = ({ navigation }) => {
-    const [cart, setCart] = useState([]);
-    const [selectedMedicine, setSelectedMedicine] = useState(null);
-    const [quantity, setQuantity] = useState('1');
-    const [modalVisible, setModalVisible] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [checkoutModalVisible, setCheckoutModalVisible] = useState(false);
+const categories = ["All", "OTG_Drugs", "Prescription_Drugs"] as const;
+const menuItems: Record<string, { name: string; price: string; image: string }[]> = {
+    OTG_Drugs: [
+      { name: "Paracetamol", price: "Rs.60", image: "https://5.imimg.com/data5/SELLER/Default/2023/2/HR/CZ/QW/6918745/paracetamol-500mg-tablets-intemol-500-2-.jpeg" },
+      { name: "Ibuprofen", price: "Rs.70", image: "https://5.imimg.com/data5/SELLER/Default/2023/9/344827499/TG/YT/FY/192270567/ibuprofen-tablet-400mg.png" },
+      { name: "Aspirin", price: "Rs.50", image: "https://5.imimg.com/data5/SELLER/Default/2023/7/330506870/UM/GZ/QO/135658020/aspirin-dispersible-tablets.jpg" },
+      { name: "Naproxen", price: "Rs.50", image: "https://www.gnova.co.in/wp-content/uploads/Naproxen-and-Domperidone-Tablets.jpeg" },
+      { name: "Diclofenac Gel", price: "Rs.80", image: "https://image.made-in-china.com/2f0j00oRFcliWMnebT/Diclofenac-Diethylamine-Gel-1-16-30g-Diclofenac-Sodium-Gel-1-30g.webp" },
+      { name: "Multivitamins", price: "Rs.60", image: "https://inlifehealthcare.com/cdn/shop/files/Frontwb_1_30215729-eb83-4dac-9e54-5b04b7569af3.webp?v=1734413301&width=2048" },
+      { name: "Artificial Tears", price: "Rs.70", image: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/3e17ca09069e4933b7891bda4373fddf.jpg?dpr=2.625&format=auto" },
+      { name: "Carbamide Peroxide", price: "Rs.40", image: "https://nulifepharma.com/admin/images/product_img/165097071388Soliwax-CP-Ear-Drops-product.png" },
+    ],
+    Prescription_Drugs: [
+      { name: "Amoxicillin", price: "Rs.150", image: "https://5.imimg.com/data5/SELLER/Default/2023/4/302374024/JI/DV/MR/25738186/amoxicillin-500mg-capsule-500x500.png" },
+      { name: "Cephalexin (Keflex)", price: "Rs.150", image: "https://www.grxstatic.com/d4fuqqd5l3dbz/products/Package_28944.JPG" },
+      { name: "Fluoxetine (Prozac)", price: "Rs.100", image: "https://5.imimg.com/data5/SELLER/Default/2023/7/326568545/DE/RN/WT/193024635/prozac.jpg" },
+      { name: "Insulin Glargine (Lantus)", price: "Rs.90", image: "https://5.imimg.com/data5/SELLER/Default/2020/12/QT/YX/VR/115213003/lantus-insulin-glargine-injection-500x500.jpg" },
+      { name: "Ciprofloxacin (Cipro)", price: "Rs.80", image: "https://5.imimg.com/data5/FA/SB/FW/SELLER-71371632/cipro-tablets-500x500.png" },
+  
+    ]
+  };
 
-    const { width } = useWindowDimensions();
-    const isMobile = width < 768; // Detect mobile
-    const [numColumns, setNumColumns] = useState(isMobile ? 1 : 3);
-    const [listKey, setListKey] = useState(String(numColumns));
-    
-    useEffect(() => {
-        const newNumColumns = isMobile ? 1 : 3;
-        if (newNumColumns !== numColumns) {
-            setNumColumns(newNumColumns);
-            setListKey(String(newNumColumns)); // Force re-render when layout changes
-        }
-    }, [width]);
+type CategoryType = keyof typeof menuItems | "All";
+type NavigationProp = StackNavigationProp<RootStackParamList, "Restaurant">;
 
+const MedicalScreen: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>("All");
+  const [cart, setCart] = useState<{ [key: string]: number }>({});
+  const [checkoutVisible, setCheckoutVisible] = useState(false);
+  const { width } = useWindowDimensions();
+  const navigation = useNavigation<NavigationProp>();
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
+  const isWideScreen = width > 800;
+  const numColumns = isWideScreen ? 3 : 1;
 
-    const medicines = [
-        { id: '1', name: 'Paracetamol', price: 50, image: 'https://www.stelonbiotech.com/wp-content/uploads/2022/04/PYREMUST-650-TAB.jpg', description: 'Used to reduce fever and relieve mild to moderate pain.' },
-        { id: '2', name: 'Ibuprofen', price: 100, image: 'https://5.imimg.com/data5/SELLER/Default/2023/7/325863554/WI/JM/SY/135658020/ibuprofen-tablets-ip-200-mg-.jpg', description: 'Pain reliever and anti-inflammatory.' },
-        { id: '3', name: 'Cough Syrup', price: 120, image: 'https://images.apollo247.in/pub/media/catalog/product/b/e/ben0006_2.jpg', description: 'Relieves cough and soothes the throat.' },
-        { id: '4', name: 'Vitamin C Tablets', price: 150, image: 'https://media.istockphoto.com/id/158324666/photo/vitamin-c-pills.jpg?s=612x612&w=0&k=20&c=ANJohnSd2bNsj3Wb5NJam-HjeLh-EaGrQG-t5MgX3Vk=', description: 'Boosts immunity and improves overall health.' },
-        { id: '5', name: 'Antacid Tablets', price: 80, image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Antacid-L478.jpg/1200px-Antacid-L478.jpg', description: 'Neutralizes stomach acid and relieves heartburn.' },
-        { id: '6', name: 'Pain Relief Gel', price: 200, image: 'https://m.media-amazon.com/images/I/61jp6Cug86L.jpg', description: 'Provides quick relief from joint and muscle pain.' },
-        { id: '7', name: 'Antiseptic Liquid', price: 130, image: 'https://m.media-amazon.com/images/I/511ulL82q3L._AC_UF894,1000_QL80_.jpg', description: 'Disinfects wounds and prevents infections.' },
-        { id: '8', name: 'Antibiotic Ointment', price: 250, image: 'https://onemg.gumlet.io/a_ignore,w_380,h_380,c_fit,q_auto,f_auto/c2a7dfcf88b44212afe2acf32534de57.jpg', description: 'Used to prevent and treat skin infections.' },
-        { id: '9', name: 'Oral Rehydration Salts (ORS)', price: 30, image: 'https://www.biobrickpharma.com/wp-content/uploads/2024/06/BIKOFULL-ORS.jpg', description: 'Restores fluids and electrolytes lost due to dehydration.' },
-        { id: '10', name: 'Multivitamin Tablets', price: 180, image: 'https://cdn01.pharmeasy.in/dam/products_otc/205923/maxirich-multivitamin-minerals-antioxidant-calcium-box-10-softgels-6.2-1726646418.jpg', description: 'Helps in fulfilling daily vitamin and mineral requirements.' },
-        { id: '11', name: 'Cold and Flu Capsules', price: 160, image: 'https://5.imimg.com/data5/SELLER/Default/2022/7/XX/YZ/IO/8949361/cold-and-flu-capsules.jpg', description: 'Relieves symptoms of cold, fever, and flu.' },
-        { id: '12', name: 'Anti-Allergy Tablets', price: 120, image: 'https://5.imimg.com/data5/SELLER/Default/2022/10/YT/KM/GM/147515487/cetirizine-tablets.jpg', description: 'Relieves allergy symptoms like sneezing and runny nose.' },
-        { id: '13', name: 'Antifungal Cream', price: 220, image: 'https://5.imimg.com/data5/SELLER/Default/2022/3/LS/WB/PI/64204638/antifungal-cream.jpg', description: 'Used to treat skin fungal infections like ringworm and athlete’s foot.' },
-        { id: '14', name: 'Nasal Spray', price: 140, image: 'https://5.imimg.com/data5/SELLER/Default/2022/5/SJ/HJ/NH/17775009/nasal-spray.jpg', description: 'Provides relief from nasal congestion and allergies.' },
-        { id: '15', name: 'Laxative Tablets', price: 90, image: 'https://5.imimg.com/data5/SELLER/Default/2022/3/QJ/ER/PH/107915961/laxative-tablets.jpg', description: 'Used for relieving constipation and improving bowel movement.' },
-    ];
-    
+  const handleAddItem = (itemName: string) => {
+    setCart((prev) => ({ ...prev, [itemName]: (prev[itemName] || 0) + 1 }));
+  };
 
-    const addToCart = () => {
-        if (!selectedMedicine) return;
+  const handleRemoveItem = (itemName: string) => {
+    setCart((prev) => {
+      const updatedCart = { ...prev };
+      if (updatedCart[itemName] > 1) {
+        updatedCart[itemName] -= 1;
+      } else {
+        delete updatedCart[itemName];
+      }
+      return updatedCart;
+    });
+  };
 
-        const quantityNumber = parseInt(quantity, 10);
-        if (isNaN(quantityNumber) || quantityNumber <= 0) {
-            Alert.alert('Invalid Quantity', 'Please enter a valid quantity.');
-            return;
-        }
+  // Filter selected items
+  const selectedItems = Object.entries(cart)
+    .filter(([_, quantity]) => quantity > 0)
+    .map(([name, quantity]) => ({ name, quantity }));
 
-        setCart((prevCart) => {
-            const existingItem = prevCart.find((item) => item.id === selectedMedicine.id);
-            if (existingItem) {
-                return prevCart.map((item) =>
-                    item.id === selectedMedicine.id
-                        ? { ...item, quantity: item.quantity + quantityNumber }
-                        : item
-                );
-            } else {
-                return [...prevCart, { ...selectedMedicine, quantity: quantityNumber }];
-            }
-        });
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
+            <Icon name="arrow-left" size={22} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Menu</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
+            <Icon name="home" size={22} color="#333" />
+          </TouchableOpacity>
+        </View>
 
-        Alert.alert('Added to Cart', `${quantityNumber} x ${selectedMedicine.name} added.`);
-        setModalVisible(false);
-        setQuantity('1');
-    };
+        {/* Categories */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsContainer}>
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[styles.tab, selectedCategory === category && styles.activeTab]}
+              onPress={() => setSelectedCategory(category)}
+            >
+              <Text style={[styles.tabText, selectedCategory === category && styles.activeTabText]}>
+                {category}
+              </Text>
 
-    const removeFromCart = (medicineId) => {
-        setCart((prevCart) => prevCart.filter((item) => item.id !== medicineId));
-        Alert.alert('Removed from Cart', `Medicine has been removed.`);
-    };
+            </TouchableOpacity>
 
-    const calculateTotal = () => {
-        return cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    };
+          ))}
+        </ScrollView>
+      </View>
 
-    const handleCheckout = () => {
-        setCheckoutModalVisible(true);
-    };
-    
-    const confirmCheckout = () => {
-        setCheckoutModalVisible(false);
-        Alert.alert("Order Placed", "Your order has been successfully placed!");
-        setCart([]); // Clear cart after checkout
-        navigation.navigate("Home"); // Redirect after checkout
-    };
-    
-    return (
-        <View style={styles.container}>
-            {/* 🔹 Back Button on Top */}
-           
-                <View style={styles.header}>
-                    {/* Back Button */}
-                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
+      {/* Display Menu Items with Section Headers */}
+      <FlatList
+        data={selectedCategory === "All" ? Object.values(menuItems).flat() : menuItems[selectedCategory]}
+        keyExtractor={(item) => item.name}
+        numColumns={numColumns}
+        columnWrapperStyle={numColumns > 1 ? styles.row : null}
+        key={numColumns}
+        ListHeaderComponent={<Text style={styles.sectionHeader}>Menu Items</Text>}
+        renderItem={({ item }) => (
+            <View style={styles.menuItem}>
+            {/* Right Side - Name, Price, and Quantity Controls */}
+            <View style={styles.rightContainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemPrice}>{item.price}</Text>
+              </View>
+          
+              {/* Quantity Controls */}
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity onPress={() => handleRemoveItem(item.name)}>
+                  <Icon name="minus" size={16} color="#333" />
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{cart[item.name] || 0}</Text>
+                <TouchableOpacity onPress={() => handleAddItem(item.name)}>
+                  <Icon name="plus" size={16} color="#333" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          
+            {/* Left Side - Image */}
+            <Image source={{ uri: item.image }} style={styles.itemImage} />
+          </View>
+          
+        )}
+      />
 
-                    <Text style={styles.headerTitle}>Medical Store</Text>
-
-                    {/* Home Button */}
-                    <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate("Home")}>
-                        <Ionicons name="home" size={24} color="#333" />
-                    </TouchableOpacity>
-                </View>
-
-            <TextInput
-    style={styles.searchBar}
-    placeholder="Search for medicines..."
-    value={searchQuery}
-    onChangeText={setSearchQuery}
-/>
-
-
-<FlatList
-                key={listKey} // Force re-render on layout change
-                data={medicines.filter((item) =>
-                    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )}
-                numColumns={numColumns}
-                columnWrapperStyle={numColumns > 1 ? styles.row : undefined}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <View style={[styles.medicineCard, { width: numColumns === 1 ? "100%" : "30%" }]}>
-                        <Image source={{ uri: item.image }} style={styles.medicineImage} />
-                        <View style={styles.medicineDetails}>
-                            <Text style={styles.medicineName}>{item.name}</Text>
-                            <Text style={styles.medicinePrice}>₹{item.price}</Text>
-                            <TouchableOpacity
-                                style={styles.addButton}
-                                onPress={() => {
-                                    setSelectedMedicine(item);
-                                    setModalVisible(true);
-                                }}
-                            >
-                                <Text style={styles.addButtonText}>Add to Cart</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
-            />
-
-
-
-            {/* Quantity Input Modal */}
-            <Modal visible={modalVisible} transparent animationType="slide">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContainer}>
-                        <Text style={styles.modalTitle}>Enter Quantity</Text>
-                        <View style={styles.quantityContainer}>
-    <TouchableOpacity onPress={() => setQuantity(prev => Math.max(1, parseInt(prev) - 1))} style={styles.quantityButton}>
-        <Text style={styles.quantityButtonText}>-</Text>
-    </TouchableOpacity>
-    <TextInput
-        style={styles.quantityInput}
-        keyboardType="numeric"
-        placeholder="Enter quantity"
-        value={quantity}
-        onChangeText={setQuantity}
-    />
-    <TouchableOpacity onPress={() => setQuantity(prev => (parseInt(prev) + 1) || 1)} style={styles.quantityButton}>
-        <Text style={styles.quantityButtonText}>+</Text>
-    </TouchableOpacity>
-</View>
-
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                                <Text style={styles.cancelButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.confirmButton} onPress={addToCart}>
-                                <Text style={styles.confirmButtonText}>Add</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-
-            {/* Cart Section */}
-            <View style={styles.cartContainer}>
-                <Text style={styles.cartHeader}>Your Cart</Text>
-                {cart.length === 0 ? (
-                    <Text style={styles.emptyCart}>Cart is empty</Text>
-                ) : (
-                    <ScrollView>
-                        {cart.map((item) => (
-                            <View key={item.id} style={styles.cartItem}>
-                                <Text style={styles.cartItemText}>{item.name}</Text>
-                                <Text style={styles.cartItemPrice}>
-                                    ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
-                                </Text>
-                                <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.removeButton}>
-                                    <Text style={styles.removeButtonText}>Remove</Text>
-                                </TouchableOpacity>
-                            </View>
-                        ))}
-                        <Text style={styles.totalPrice}>Total: ₹{calculateTotal()}</Text>
-                        <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
-    <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
-</TouchableOpacity>
-
-
-                    </ScrollView>
-                )}
-
-                {/* Checkout Confirmation Modal */}
-<Modal visible={checkoutModalVisible} transparent animationType="slide">
-    <View style={styles.modalOverlay}>
+      {/* Checkout Button */}
+      {selectedItems.length > 0 && (
+        <TouchableOpacity style={styles.checkoutButton} onPress={() => setCheckoutVisible(true)}>
+          <Text style={styles.checkoutText}>Checkout ({selectedItems.length} items)</Text>
+        </TouchableOpacity>
+      )}
+       <Modal visible={checkoutVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Confirm Checkout</Text>
-            <Text style={styles.modalMessage}>
-                Your total bill is ₹{calculateTotal()}. Do you want to proceed with checkout?
-            </Text>
-
-            <View style={styles.modalButtons}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setCheckoutModalVisible(false)}>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.confirmButton} onPress={confirmCheckout}>
-                    <Text style={styles.confirmButtonText}>Confirm</Text>
-                </TouchableOpacity>
-            </View>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Your Order</Text>
+            {selectedItems.map((item) => (
+              <View key={item.name} style={styles.cartItem}>
+                <Text style={styles.cartItemText}>
+                  {item.name} x {item.quantity}
+                </Text>
+              </View>
+            ))}
+            <TouchableOpacity style={styles.confirmButton} onPress={() => {
+              setCheckoutVisible(false);
+              setConfirmVisible(true);
+            }}>
+              <Text style={styles.confirmText}>Confirm Order</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setCheckoutVisible(false)}>
+              <Text style={styles.closeText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
+      </Modal>
+      <Modal visible={confirmVisible} animationType="slide" transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose Order Type</Text>
+            {["Takeaway", "Delivery"].map((option) => (
+              <TouchableOpacity key={option} style={styles.optionButton} onPress={() => setConfirmVisible(false)}>
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.closeButton} onPress={() => setConfirmVisible(false)}>
+              <Text style={styles.closeText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
-</Modal>
-
-            </View>
-        </View>
-    );
+  );
 };
 
-
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F7F8FA', padding: 20 },
+  checkoutButton: { backgroundColor: "#4A90E2", padding: 15, alignItems: "center", margin: 10, borderRadius: 5 },
+  checkoutText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  cartItem: { fontSize: 16, padding: 5, fontWeight: "bold" },
+  menuItem: {
+    flexDirection: "row-reverse", // Puts the image on the right
+    alignItems: "center",
+    backgroundColor: "#fff",
+    margin: 8,
+    borderRadius: 8,
+    width:360,
+    padding: 10,
+    height: 100, // Equal size for all grid items
+    justifyContent: "space-between",
+  },
+  itemImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    marginRight:10,
+    marginLeft: 10, // Space between text and image
+  },
+  rightContainer: {
+    flex: 1, // Takes up the remaining space
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  textContainer: {
+    flex: 1, // Makes sure the text takes up full space
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  itemPrice: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4, // Small gap between name and price
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  quantityText: {
+    marginHorizontal: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+  },
+  gridItem: {
+    width: "48%", // Ensures equal size for all grid items
+    marginBottom: 12,
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+  },
+  confirmButton: { backgroundColor: "#4CAF50", padding: 10, borderRadius: 5, marginTop: 10, width: "100%", alignItems: "center" },
+  leftContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    flex: 1, // Ensures the left side gets proper space
+  },  cartItemText: { fontSize: 16, fontWeight: "bold" },
+  closeButton: { padding: 10, marginTop: 10 },
 
-    // 🔹 Back Button Styling
-    backButton: {
-        backgroundColor: 'transparent',
-        padding: 10,
-        borderRadius: 30,
-        zIndex: 10,
-    },
-    homeButton: {
-        backgroundColor: 'transparent',
-        padding: 10,
-        borderRadius: 30,
-        zIndex: 10,
-        color: 'black',
-    },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        color: 'black',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'transperent',
-        paddingVertical: 15,
-        paddingHorizontal: 20,
-        borderRadius: 10,
-        marginBottom: 15,
-    },
-    medicineCard: { flexDirection: 'row', backgroundColor: '#fff', padding: 15, marginVertical: 10, borderRadius: 10, elevation: 3 },
-    medicineImage: { width: 80, height: 80, borderRadius: 10 },
-    medicineDetails: { flex: 1, marginLeft: 10 },
-    medicineName: { fontSize: 18, fontWeight: 'bold' },
-    medicinePrice: { fontSize: 16, color: '#007BFF' },
-    addButton: { backgroundColor: '#007BFF', padding: 10, borderRadius: 5, marginTop: 10, alignItems: 'center' },
-    addButtonText: { color: '#fff' },
-    searchBar: {
-        backgroundColor: '#fff',
-        padding: 12,
-        borderRadius: 10,
-        fontSize: 16,
-        marginTop:15,
-        marginBottom: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-    },
-    
-    // Modal Styles
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' },
-    modalContainer: { width: 300, backgroundColor: '#fff', padding: 20, borderRadius: 10, alignItems: 'center' },
-    modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-    modalMessage: { fontSize: 16, textAlign: 'center', marginBottom: 20 },
-    quantityInput: { width: '100%', padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, textAlign: 'center', marginBottom: 15 },
-    modalButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
-    cancelButton: { padding: 10, backgroundColor: '#FF3B30', borderRadius: 5, flex: 1, marginRight: 5 },
-    cancelButtonText: { color: '#fff', textAlign: 'center' },
-    confirmButton: { padding: 10, backgroundColor: '#28A745', borderRadius: 5, flex: 1, marginLeft: 5 },
-    confirmButtonText: { color: '#fff', textAlign: 'center' },
-
-    quantityContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 15,
-    },
-    quantityButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-    },
-    quantityButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    quantityInput: {
-        width: 50,
-        textAlign: 'center',
-        fontSize: 16,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 5,
-        padding: 10,
-        marginHorizontal: 5,
-    },
-    
-    // Cart Styles
-    cartContainer: { marginTop: 20, padding: 15, borderRadius: 10, backgroundColor: '#fff', elevation: 3 },
-    cartHeader: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-    cartItem: { flexDirection: 'row', alignItems: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd' },
-    cartItemImage: { width: 50, height: 50, borderRadius: 5, marginRight: 10 },
-    cartItemDetails: { flex: 1 },
-    cartItemText: { fontSize: 16, fontWeight: 'bold' },
-    cartItemPrice: { fontSize: 14, color: '#007BFF' },
-    
-    removeButton: { backgroundColor: '#FF3B30', padding: 8, borderRadius: 5 },
-    removeButtonText: { color: '#fff' },
-    
-    checkoutButton: { backgroundColor: '#28A745', padding: 12, borderRadius: 5, alignItems: 'center', marginTop: 10 },
-    checkoutButtonText: { color: '#fff', fontSize: 16 },
+  container: { flex: 1, backgroundColor: "#F9FAFA", paddingTop: 100 },
+  sectionHeader: { fontSize: 18, fontWeight: "bold", textAlign: "center", paddingVertical: 10 },
+  headerContainer: { position: "absolute", top: 0, width: "100%", backgroundColor: "#fff", zIndex: 1 },
+  header: { flexDirection: "row", justifyContent: "space-between", padding: 16 },
+  headerTitle: { fontSize: 20, fontWeight: "bold" },
+  iconContainer: { padding: 8 },
+  optionButton: { padding: 10, width: "100%", alignItems: "center" },
+  optionText: { fontSize: 18 },
+  tabsContainer: { flexDirection: "row", padding: 10, backgroundColor: "#fff" },
+  tab: { padding: 10, marginRight: 10 },
+  activeTab: { borderBottomWidth: 2, borderBottomColor: "#FF5722" },
+  tabText: { fontSize: 14, color: "#333" },
+  activeTabText: { fontWeight: "bold" },
+  confirmText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  closeText: { fontSize: 16, color: "red" },
+  row: { justifyContent: "space-between" },
+  modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
+  modalContent: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: 300, alignItems: "center" },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  modalOption: { padding: 10 },
+  
 });
 
 export default MedicalScreen;

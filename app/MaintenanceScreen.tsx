@@ -9,12 +9,12 @@ const services = [
   { id: "1", name: "Plumber", image: "https://st5.depositphotos.com/20923550/70478/v/450/depositphotos_704781766-stock-illustration-plumber-plumber-uniform-vector-illustration.jpg" },
   { id: "2", name: "Electrician", image: "https://t4.ftcdn.net/jpg/08/33/30/49/360_F_833304917_fvkwLj50cEuUSFV9kbq9GX6HaxFpkdgp.jpg" },
   { id: "3", name: "Carpenter", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcZCG9W50Jda_7UlBA9dx_Cep2sNvo9AWH0FN8YKoU9uLGoIUCIgRvw2VcuVzM5kSQc0M&usqp=CAU" },
-  { id: "4", name: "Cleaning", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh_ZTrJQLdGtnJ0K3PVNma3GgiF-7NXZ0jFw&s" },
-  { id: "5", name: "AC Repair", image: "https://www.shutterstock.com/image-vector/air-conditioner-repair-service-vector-600nw-752304079.jpg" },
+  { id: "4", name: "Maid", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTh_ZTrJQLdGtnJ0K3PVNma3GgiF-7NXZ0jFw&s" },
+  
 ];
 
 // Hourly Time Slots
-const timeSlots = ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"];
+const timeSlots = ["9:00 AM", "11:00 AM", "1:00 PM", "3:00 PM", "5:00 PM", "7:00 PM", "8:00 PM"];
 
 const MaintenanceScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -39,7 +39,7 @@ const MaintenanceScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}>Select a Service</Text>
+        <Text style={styles.title}>Book a Service</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.navButton}>
           <Ionicons name="home" size={28} color="black" />
         </TouchableOpacity>
@@ -47,16 +47,19 @@ const MaintenanceScreen: React.FC = () => {
 
       {/* Service Grid */}
       {!selectedService && (
-        <ScrollView contentContainerStyle={styles.gridContainer}>
-          {services.map((service) => (
-            <TouchableOpacity key={service.id} style={styles.serviceTab} onPress={() => setSelectedService(service)}>
-              <Image source={{ uri: service.image }} style={styles.serviceImage} />
-              <View style={styles.overlay}>
-                <Text style={styles.serviceText}>{service.name}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+   <ScrollView contentContainerStyle={styles.gridContainer}>
+   {services.map((service) => (
+     <TouchableOpacity 
+       key={service.id} 
+       style={styles.serviceTab} 
+       onPress={() => setSelectedService(service)}
+     >
+       <Image source={{ uri: service.image }} style={styles.serviceImage} />
+       <Text style={styles.serviceTextBelow}>{service.name}</Text>
+     </TouchableOpacity>
+   ))}
+ </ScrollView>
+ 
       )}
 
       {/* Service Details */}
@@ -110,9 +113,16 @@ const MaintenanceScreen: React.FC = () => {
       <Text style={styles.modalText}>
         Your request for {selectedService?.name} on {selectedDate} at {selectedTime} has been raised successfully.
       </Text>
-      <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
-        <Text style={styles.modalButtonText}>OK</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+  onPress={() => {
+    setModalVisible(false);
+    navigation.navigate("Home");
+  }}
+  style={styles.modalButton}
+>
+  <Text style={styles.modalButtonText}>OK</Text>
+</TouchableOpacity>
+
     </View>
   </View>
 </Modal>
@@ -176,17 +186,29 @@ const styles = StyleSheet.create({
 
   gridContainer: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-around", padding: 10 },
   serviceTab: {
-    width: "42%", // Slightly reduced for better centering
-    height: 130, // Increased to look better
-    borderRadius: 12,
-    backgroundColor: "#f0f0f0",
-    marginVertical: 12, // Increased space between service tabs
-    marginHorizontal: 8, // Ensures tabs are centered
-    overflow: "hidden",
-    elevation: 3,
-  },
+    width: "42%", // Maintain consistency with Home screen
+    alignItems: "center", // Centers image and text
+    marginVertical: 12, 
+    marginHorizontal: 8, 
+},
   
-  serviceImage: { width: "100%", height: "100%", resizeMode: "cover" },
+serviceImage: { 
+  width: 100, // Ensuring same image size as Home.tsx
+  height: 100, 
+  borderRadius: 10, 
+  resizeMode: "cover",
+  backgroundColor: "#e3dfde",
+},
+serviceTextBelow: {
+  fontSize: 14,
+  fontWeight: "bold",
+  color: "#333",
+  textAlign: "center",
+  marginTop: 8, // Spacing between image and text
+  width: 100, // Ensuring text aligns with image width
+  height: 40, // Fixed height to avoid misalignment
+  overflow: "hidden", // Ensures text doesn't overflow
+},
   overlay: { position: "absolute", bottom: 0, width: "100%", backgroundColor: "rgba(0, 0, 0, 0.6)", paddingVertical: 8, alignItems: "center" },
   serviceText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
 

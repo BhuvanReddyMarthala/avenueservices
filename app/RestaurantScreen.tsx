@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     margin: 8,
     borderRadius: 8,
-    width:370,
+    width:360,
     padding: 10,
     height: 100, // Equal size for all grid items
     justifyContent: "space-between",
@@ -223,6 +223,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 10,
     marginRight:10,
+    marginLeft: 10, // Space between text and image
   },
   rightContainer: {
     flex: 1, // Takes up the remaining space

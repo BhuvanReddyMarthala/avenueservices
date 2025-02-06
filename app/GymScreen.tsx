@@ -1,16 +1,12 @@
-import React, { useState ,useRef, useEffect} from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal,ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
 const timeSlots = [
-    "06:00 AM - 07:00 AM",
-    "07:00 AM - 08:00 AM",
-    "08:00 AM - 09:00 AM",
-    "05:00 PM - 06:00 PM",
-    "06:00 PM - 07:00 PM",
-    "07:00 PM - 08:00 PM"
+    "6:00 AM", "8:00 AM", "10:00 AM",
+    "5:00 PM", "7:00 PM", "9:00 PM"
 ];
 
 const GymScreen: React.FC = () => {
@@ -18,17 +14,12 @@ const GymScreen: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const scrollViewRef = useRef<ScrollView>(null);
-
 
     const handleConfirmBooking = () => {
         setModalVisible(true);
     };
 
     return (
-        <ScrollView ref={scrollViewRef} contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-
-
         <View style={styles.container}>
             {/* Back Button */}
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -39,7 +30,7 @@ const GymScreen: React.FC = () => {
 
             {/* Calendar View */}
             <Calendar
-                onDayPress={(day) => setSelectedDate(day.dateString)}
+                onDayPress={(day:any) => setSelectedDate(day.dateString)}
                 markedDates={selectedDate ? { [selectedDate]: { selected: true, selectedColor: "#007BFF" } } : {}}
                 theme={{
                     selectedDayBackgroundColor: "#007BFF",
@@ -98,16 +89,19 @@ const GymScreen: React.FC = () => {
                         <Text style={styles.modalTitle}>Booking Confirmed!</Text>
                         <Text style={styles.modalText}>Your gym slot for {selectedDate} at {selectedSlot} has been confirmed.</Text>
                         <TouchableOpacity
-                            style={styles.modalButton}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={styles.modalButtonText}>OK</Text>
-                        </TouchableOpacity>
+    style={styles.modalButton}
+    onPress={() => {
+        setModalVisible(false);
+        navigation.navigate('Home'); // Redirects to Home after closing modal
+    }}
+>
+    <Text style={styles.modalButtonText}>OK</Text>
+</TouchableOpacity>
+
                     </View>
                 </View>
             </Modal>
         </View>
-        </ScrollView>
     );
 };
 

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Image, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image, useWindowDimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-
 const images: Record<string, string> = {
+    'Service Request': 'https://static.vecteezy.com/system/resources/previews/000/180/372/non_2x/repair-man-vector.jpg',
     GatePass: 'https://avenuenxt.s3.ap-southeast-1.amazonaws.com/gatepass_clipart.jpg',
     Restaurant: 'https://static.vecteezy.com/system/resources/previews/049/237/459/non_2x/restaurant-cafe-front-flat-style-illustration-building-exterior-vector.jpg',
     Groceries: 'https://img.freepik.com/free-vector/delicious-meat-vegetable-wooden-crate_1308-161743.jpg',
@@ -13,204 +13,129 @@ const images: Record<string, string> = {
     Saloon: 'https://static.vecteezy.com/system/resources/previews/036/325/659/non_2x/cowboy-saloon-cartoon-colored-clipart-illustration-free-vector.jpg',
     Laundry: 'https://static.vecteezy.com/system/resources/previews/043/535/402/non_2x/laundry-machine-with-washing-clothing-and-linen-illustration-flat-cartoon-style-washer-with-baskets-of-linen-and-detergent-concept-of-domestic-housework-service-clipart-vector.jpg',
     Gym: 'https://media.istockphoto.com/id/1197037605/vector/fitness-center-gym-illustration.jpg?s=612x612&w=0&k=20&c=YBBUB8mYioZMxSVSmQBPZ0aj2T0m52iIPBVm-QuQjGc=',
+    'Broad Cast': 'https://img.lovepik.com/free-png/20211210/lovepik-broadcast-speaker-png-image_401472556_wh1200.png',
 };
-
+const dropdownOptions = ['SG 1', 'SG 2', 'SG 3', 'SG 4'];
 const HomeScreen: React.FC = () => {
-    const { width } = useWindowDimensions(); // Get screen width
+    const { width } = useWindowDimensions();
     const isMobile = width < 768;
     const isTabletOrDesktop = width >= 768;
     const navigation = useNavigation<StackNavigationProp<any>>();
-    const [searchQuery, setSearchQuery] = useState('');
     const [filteredItems, setFilteredItems] = useState(Object.keys(images));
-
-    const handleSearch = (text: string) => {
-        setSearchQuery(text);
-        if (text === '') {
-            setFilteredItems(Object.keys(images));
-        } else {
-            const filtered = Object.keys(images).filter(item =>
-                item.toLowerCase().includes(text.toLowerCase())
-            );
-            setFilteredItems(filtered);
-        }
-    };
-
+    const [dropdownVisible, setDropdownVisible] = useState(false);
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
     return (
         <View style={styles.container}>
-            {/* Header: Logo & Request Service Button */}
+            {/* Header: Logo & Dropdown */}
             <View style={styles.headerContainer}>
                 <Image
-                    source={require('../assets/images/cropped-Avenue-reality-logo.webp')}
+                    source={{ uri: 'https://avenuenxt.s3.ap-southeast-1.amazonaws.com/serene+grand+logo/serene_grand_cropped_image-removebg-preview.png' }}
                     style={styles.logo}
                     resizeMode="contain"
                 />
-                <TouchableOpacity style={styles.serviceButton} onPress={() => navigation.navigate('MaintenanceScreen')}>
-                    <Text style={styles.serviceButtonText}>Request Service</Text>
+                {/* Dropdown Icon Only */}
+                <TouchableOpacity onPress={() => setDropdownVisible(!dropdownVisible)} style={styles.dropdownIconContainer}>
+                    <Icon name={dropdownVisible ? 'chevron-up' : 'chevron-down'} size={13} color="#333" />
                 </TouchableOpacity>
-            </View>
-
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <Icon name="search" size={18} color="#777" style={styles.searchIcon} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search..."
-                    placeholderTextColor="#777"
-                    value={searchQuery}
-                    onChangeText={handleSearch}
+                {/* Second Logo */}
+                <Image
+                    source={require('../assets/images/cropped-Avenue-reality-logo.webp')}
+                    style={styles.logo1}
+                    resizeMode="contain"
                 />
             </View>
-
+            {/* Dropdown List (Positioned Over Images) */}
+            {dropdownVisible && (
+                <View style={styles.dropdownList}>
+                    {dropdownOptions.map((option, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.dropdownItem}
+                            onPress={() => {
+                                setSelectedOption(option);
+                                setDropdownVisible(false);
+                            }}
+                        >
+                            <Text style={styles.dropdownItemText}>{option}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            )}
             {/* Grid Items */}
-            <ScrollView>
+            <ScrollView contentContainerStyle={styles.gridScroll}>
                 <View style={[styles.gridContainer, { justifyContent: isTabletOrDesktop ? 'center' : 'space-between' }]}>
                     {filteredItems.map((item, index) => (
-                        <TouchableOpacity 
-                            key={index} 
+                        <TouchableOpacity
+                            key={index}
                             style={[styles.gridItem, { width: isMobile ? '45%' : '21%' }]} // 2 grids for mobile, 4 grids for large screens
                             onPress={() => {
-                                if (item == 'GatePass') navigation.navigate('GatePass');
+                                 if (item === 'Service Request') navigation.navigate('Maintenance');
+                                else  if (item === 'GatePass') navigation.navigate('GatePass');
                                 else if (item === 'Restaurant') navigation.navigate('Restaurant');
                                 else if (item === 'Groceries') navigation.navigate('Grocery');
                                 else if (item === 'Pharmacy') navigation.navigate('Medical');
                                 else if (item === 'Club House') navigation.navigate('ClubHouse');
                                 else if (item === 'Saloon') navigation.navigate('Saloon');
-                                else if (item === 'Laundry') navigation.navigate('LaundryScreen');
+                                else if (item === 'Laundry') navigation.navigate('laundry');
                                 else if (item === 'Gym') navigation.navigate('Gym');
-                                else if (item === 'MaintenanceScreen') navigation.navigate('MaintenanceScreen')
+                                else if (item === 'Broad Cast') navigation.navigate('BroadCast');
                             }}>
-                            <Image
-                                source={{ uri: images[item] || 'https://example.com/default.jpg' }}
-                                style={styles.gridImage}/>
+                            <Image source={{ uri: images[item] || 'https://example.com/default.jpg' }} style={styles.gridImage} />
                             <Text style={styles.gridText}>{item}</Text>
-                        </TouchableOpacity> ))}
+                        </TouchableOpacity>
+                    ))}
                 </View>
             </ScrollView>
-            <View style={styles.footer}>
-                {['Home', 'Search', 'Item', 'Account'].map((item, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.footerItem}
-                        onPress={() => {
-                            if (item === 'Home') {
-                                navigation.navigate('Home');
-                            } else if (item === 'Search') {
-                                navigation.navigate('Search');
-                            } else if (item === 'Item') {
-                                navigation.navigate('Item');
-                            } else if (item === 'Account') {
-                                navigation.navigate('LoginPage'); // Navigate to Login page
-                            }
-                        }}
-                    >
-                        <Icon
-                            name={item === 'Home' ? 'home' : item === 'Search' ? 'search' : item === 'Item' ? 'tasks' : 'user'}
-                            size={24}
-                            color="#5a5a5c"
-                            style={styles.footerIcon}
-                        />
-                        <Text style={styles.footerText}>{item}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
         </View>
-    )};
-
+    );
+};
 const styles = StyleSheet.create({
-    container: { 
-        flex: 1, 
-        backgroundColor: '#FFFFFF', 
-    },
+    container: { flex: 1, backgroundColor: '#FFFFFF' },
     headerContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        backgroundColor: '#f8f8f8',
-    },
-    logo: {
-        width: 140, 
-        height: 40, 
-    },
-    serviceButton: {
-        backgroundColor: '#007BFF',
-        paddingVertical: 8, 
-        paddingHorizontal: 14,
-        borderRadius: 8,
-        alignItems: 'center', 
-        justifyContent: 'center',
-    },
-    serviceButtonText: {
-        fontSize: 14,
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    searchContainer: {
-        flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        marginHorizontal: 16,
-        marginVertical: 10,
+        justifyContent: 'space-between',
         paddingHorizontal: 10,
+        paddingVertical: 5, // REDUCED SPACE BETWEEN HEADER AND GRID
     },
-    searchIcon: {
-        marginRight: 8,
+    logo: { width: 170, height: 100 },
+    logo1: { width: 80, height: 50,marginRight:15 },
+    dropdownIconContainer: {
+        padding: 10, // Makes touchable area bigger
+        marginLeft: -90, // Adjust position closer to first logo
     },
-    searchInput: {
-        flex: 1,
-        height: 38,
-        fontSize: 15,
+    dropdownList: {
+        position: 'absolute',
+        top: 90, // Move it BELOW the header but OVER the images
+        left: '50%',
+        transform: [{ translateX: -50 }],
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        paddingVertical: 5,
+        width: 80,
+        zIndex: 1000, // Bring to the front
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 10,
+    },
+    dropdownItem: {
+        padding: 10,
+        alignItems: 'center',
+    },
+    dropdownItemText: {
+        fontSize: 14,
         color: '#333',
     },
-    gridContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingHorizontal: 12,
-        paddingTop: 16,
+    gridScroll: {
+        paddingTop: 5, // Reducing space between header and grid
     },
-    gridItem: {
-        marginBottom: 12,
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        borderRadius: 10,
-        padding: 10,
-        backgroundColor: 'white',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        backgroundColor: '#f9f9f9',
-        paddingVertical: 10,
-        borderTopWidth: 1,
-        borderTopColor: '#EAEAEA',
-    },
-    footerItem: {
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    footerIcon: {
-        marginBottom: 5,
-    },
-    footerText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#333333',
-    },
-    gridImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 10,
-        backgroundColor: '#e3dfde',
-    },
-    gridText: {
-        marginTop: 6,
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#4f4f4f',
-        textAlign: 'center',
-    },
+    gridContainer: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12 },
+    gridItem: { marginBottom: 8, alignItems: 'center', justifyContent: 'space-around', borderRadius: 10, padding: 10, backgroundColor: 'white' },
+    gridImage: { width: 90, height: 75, borderRadius: 10, backgroundColor: '#e3dfde' },
+    gridText: { marginTop: 4, fontSize: 14, fontWeight: '600', color: '#4f4f4f', textAlign: 'center' },
 });
-
 export default HomeScreen;

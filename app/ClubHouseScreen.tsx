@@ -77,24 +77,53 @@ const ClubHouseScreen: React.FC = () => {
       };
       
 
-    // Generate time slots dynamically from 9:00 AM to 9:00 PM
-    const generateTimeSlots = () => {
-        const timeSlots = [];
-        let start = 9 * 60; // Start at 9:00 AM in minutes
-        const end = 21 * 60; // End at 9:00 PM in minutes
-        while (start <= end) {
-            const hours = Math.floor(start / 60);
-            const minutes = start % 60;
-            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
-                .toString()
-                .padStart(2, '0')}`;
-            timeSlots.push(formattedTime);
-            start += 30; // Increment by 30 minutes
-        }
-        return timeSlots;
-    };
+    // // Generate time slots dynamically from 9:00 AM to 9:00 PM
+    // const generateTimeSlots = () => {
+    //     const timeSlots = [];
+    //     let start = 9 * 60; // Start at 9:00 AM in minutes
+    //     const end = 21 * 60; // End at 9:00 PM in minutes
+    //     while (start <= end) {
+    //         const hours = Math.floor(start / 60);
+    //         const minutes = start % 60;
+    //         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+    //             .toString()
+    //             .padStart(2, '0')}`;
+    //         timeSlots.push(formattedTime);
+    //         start += 30; // Increment by 30 minutes
+    //     }
+    //     return timeSlots;
+    // };
 
-    const timeSlots = generateTimeSlots();
+    // const timeSlots = generateTimeSlots();
+    // Function to format time in 12-hour format
+const formatTime12Hour = (hours: number, minutes: number) => {
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+    return `${formattedHours}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+};
+
+// Function to generate time slots based on the selected option
+const generateTimeSlots = (isPartyHall: boolean) => {
+    const timeSlots = [];
+    let start = 8 * 60; // Start at 8:00 AM in minutes
+    const end = 22 * 60; // End at 10:00 PM in minutes
+    const interval = isPartyHall ? 8 * 60 : 4 * 60; // Party Hall (8 hours), Movie (4 hours)
+
+    while (start <= end) {
+        const hours = Math.floor(start / 60);
+        const minutes = start % 60;
+        timeSlots.push(formatTime12Hour(hours, minutes));
+        start += interval; // Increment by 4 or 8 hours
+    }
+    return timeSlots;
+};
+
+// Updated in return section of Booking Page:
+const timeSlots = selectedOption
+    ? generateTimeSlots(selectedOption?.name?.includes("Party Hall"))
+    : [];
+
+
 
     if (!selectedOption) {
         // **Select a Screen or Party Hall Page**
@@ -172,7 +201,32 @@ const ClubHouseScreen: React.FC = () => {
             <Text>{selectedOption.description}</Text>
 
             <Text >Select Date</Text>
-            <Calendar onDayPress={handleDayPress} />
+            <View style={styles.calendarWrapper}>
+                                <Calendar
+                                    onDayPress={(day) => setSelectedDate(day.dateString)}
+                                    markedDates={
+                                        selectedDate ? { [selectedDate]: { selected: true, selectedColor: "#6c63ff", selectedTextColor: "#fff" } } : {}
+                                    }
+                                    theme={{
+                                        backgroundColor: "transparent",
+                                        calendarBackground: "transparent",
+                                        textSectionTitleColor: "#333",
+                                        selectedDayBackgroundColor: "#6c63ff",
+                                        selectedDayTextColor: "#fff",
+                                        todayTextColor: "#6c63ff",
+                                        arrowColor: "#6c63ff",
+                                        monthTextColor: "#333",
+                                        textDayFontWeight: "500",
+                                        textMonthFontWeight: "bold",
+                                        textDayHeaderFontWeight: "600",
+                                        textDayFontSize: 16,
+                                        textMonthFontSize: 18,
+                                        textDayHeaderFontSize: 14,
+                                    }}
+                                    style={styles.calendar}
+                                />
+                            </View>
+            
 
             {selectedDate && (
                 <>
@@ -248,8 +302,20 @@ const ClubHouseScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F7F8FA',
+        backgroundColor: 'white',
         padding: 20,
+    },
+    calendarWrapper: {
+        alignItems: "center", // Centers the calendar
+        marginVertical: 20,
+    },
+
+    // Calendar Styling
+    calendar: {
+        borderRadius: 15, // Rounded edges
+        elevation: 5, // Shadow for better visibility
+        backgroundColor: "#fff", // White background for consistency
+        width: "100%", // Full width
     },
     headerContainer: {
         flexDirection: 'row',

@@ -4,31 +4,24 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from './HomeScreen';
 import RestaurantScreen from './RestaurantScreen';
 import GymScreen from './GymScreen';
-import VegetablesScreen from './GroceryScreen';
 import SaloonScreen from './SaloonScreen';
 import MedicalScreen from './MedicalScreen';
 import GatePassScreen from './GatePassScreen';
 import ClubHouseScreen from './ClubHouseScreen';
 import LaundryScreen from './LaundryScreen';
+import GroceryScreen from './GroceryScreen';
 import MaintenanceScreen from './MaintenanceScreen';
-// ✅ Define types for stack navigation
+import BroadCastScreen from './BroadCastScreen';
+
 export type RootStackParamList = {
   Home: undefined;
   Restaurant: undefined;
-  Gym: undefined;
-  Grocery: undefined;
-  Saloon: undefined;
-  Medical: undefined;
-  GatePass: undefined;
-  ClubHouse: undefined;
-  LaundryScreen: undefined;
-  MedicalScreen: undefined;
-  MaintenanceScreen: undefined;
 };
 
-// ✅ Pass `RootStackParamList` to `createNativeStackNavigator()`
-const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const Stack = createNativeStackNavigator();
+
+ 
 export default function App() {
   return (
     <NavigationContainer>
@@ -51,7 +44,12 @@ export default function App() {
         />
           <Stack.Screen 
           name="Grocery" 
-          component={VegetablesScreen} 
+          component={GroceryScreen} 
+          options={{ headerShown: false }} // Hide header
+        />
+        <Stack.Screen 
+          name="Maintenance" 
+          component={MaintenanceScreen} 
           options={{ headerShown: false }} // Hide header
         />
           <Stack.Screen 
@@ -62,11 +60,6 @@ export default function App() {
            <Stack.Screen 
           name="Medical" 
           component={MedicalScreen} 
-          options={{ headerShown: false }} // Hide header
-        />
-          <Stack.Screen 
-          name="MaintenanceScreen" 
-          component={MaintenanceScreen} 
           options={{ headerShown: false }} // Hide header
         />
          <Stack.Screen 
@@ -80,22 +73,18 @@ export default function App() {
           options={{ headerShown: false }} // Hide header
         />
         <Stack.Screen 
-          name="LaundryScreen" 
+          name="laundry" 
           component={LaundryScreen} 
           options={{ headerShown: false }} // Hide header
         />
+        <Stack.Screen 
+          name="BroadCast" 
+          component={BroadCastScreen} 
+          options={{ headerShown: false }} // Hide header
+        />
+        
 
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-
-
-
-
-
-
-
-
-
-
