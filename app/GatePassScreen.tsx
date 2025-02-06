@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,18 +7,47 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  useWindowDimensions,
+  FlatList,
+  Platform,
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { Calendar } from "react-native-calendars";
 import { useNavigation } from "@react-navigation/native";
 import { TextField } from "@mui/material";
+import * as Sharing from "expo-sharing";
+import ViewShot from "react-native-view-shot";
+import { captureRef } from "react-native-view-shot";
+import { Image } from "react-native";
+import * as FileSystem from "expo-file-system";
+import * as Print from "expo-print";
 
 const categories = [
-  { name: "Guest", icon: "user", value: "Guest" },
-  { name: "Delivery", icon: "truck", value: "Home Delivery" },
-  { name: "Cab", icon: "car", value: "Cab" },
-  { name: "Visiting Help", icon: "briefcase", value: "Visiting Help" },
+  {
+    name: " Issue for Guest",
+    image:
+      "https://www.shutterstock.com/image-vector/hotel-check-in-man-luggage-260nw-2253236591.jpg",
+    value: "Guest",
+  },
+  {
+    name: " Issue for Delivery",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPokS4qUHZgFtcdm0VwmNy-nX5qRPmM_2kuA&s",
+    value: "Home Delivery",
+  },
+  {
+    name: " Issue for Cab",
+    image:
+      "https://www.shutterstock.com/image-vector/taxi-car-passenger-auto-transport-600nw-2426043867.jpg",
+    value: "Cab",
+  },
+  {
+    name: " Issue for Visiting help",
+    image:
+      "https://img.freepik.com/free-vector/carpet-cleaning-concept-illustration_114360-24721.jpg",
+    value: "Visiting Help",
+  },
 ];
 
 const expiryOptions = ["1 Hour", "3 Hours", "6 Hours", "12 Hours", "24 Hours"];
@@ -42,7 +71,6 @@ const generateTimeSlots = (selectedDate: string | null) => {
 };
 
 const GatePassScreen = () => {
-
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [qrModalVisible, setQrModalVisible] = useState(false);
@@ -50,23 +78,134 @@ const GatePassScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [visitorName, setVisitorName] = useState("");
   const [visitorNameError, setVisitorNameError] = useState(false);
+  const { width } = useWindowDimensions(); // Detect screen width
 
   const [visitorPhone, setVisitorPhone] = useState("");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [expiry, setExpiry] = useState("1 Hour");
-  const [qrValue, setQrValue] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimeSlots, setShowTimeSlots] = useState(false);
+  const qrCodeRef = useRef<ViewShot | null>(null);
+
+  const numColumns = width > 800 ? 4 : 2; // 4 icons per row for desktop, 2 for mobile
+  const itemSize = width / numColumns - 40; // Ensure spacing and full width
 
   const [timeSlots, setTimeSlots] = useState<string[]>(generateTimeSlots(null));
+
   const handleCategorySelection = (category: string) => {
-    console.log("Selected category: ", category);
+    console.log("Selected category:", category);
     setSelectedCategory(category);
     setModalVisible(true);
+    console.log("Modal should be opening... Modal State:", modalVisible);
   };
 
-  // ✅ FIXED: Closing bracket for `handleGenerateQR` function was missing
+  const generateAndDownloadPDF = async (qrData: any, qrBase64: string) => {
+    try {
+      console.log("Generating PDF...");
+
+      // ✅ Ensure QR data exists
+      if (!qrData || !qrBase64) {
+        Alert.alert("Error", "Invalid QR data, please try again.");
+        return;
+      }
+
+      // ✅ Define the HTML for the PDF
+      const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+            .container { border: 2px solid #000; padding: 20px; border-radius: 10px; }
+            .qr-code { margin-top: 20px; }
+            .details { font-size: 16px; margin-top: 20px; text-align: left; }
+            .label { font-weight: bold; color: #007BFF; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Gate Pass</h1>
+            <div class="qr-code">
+              <img src="data:image/png;base64,${qrBase64}" width="200" height="200"/>
+            </div>
+            <div class="details">
+              <p><span class="label">👤 Name:</span> ${qrData.name}</p>
+              <p><span class="label">📞 Phone:</span> ${qrData.phone}</p>
+              <p><span class="label">🏷️ Category:</span> ${qrData.category}</p>
+              <p><span class="label">📅 Date:</span> ${qrData.date}</p>
+              <p><span class="label">⏰ Time:</span> ${qrData.time}</p>
+              <p><span class="label">⌛ Expiry:</span> ${qrData.expiry}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+      // ✅ Generate the PDF file
+      const pdfFile = await Print.printToFileAsync({ html: htmlContent });
+
+      // ✅ Check if the PDF file was actually generated
+      if (!pdfFile || !pdfFile.uri) {
+        throw new Error("Failed to generate PDF.");
+      }
+
+      console.log("PDF saved at:", pdfFile.uri);
+
+      // ✅ Define a local file path for saving the PDF
+      const fileName = `GatePass_${qrData.name.replace(/\s/g, "_")}.pdf`;
+      const pdfPath = `${FileSystem.documentDirectory}${fileName}`;
+
+      // ✅ Move the generated PDF to the local file system
+      await FileSystem.moveAsync({
+        from: pdfFile.uri,
+        to: pdfPath,
+      });
+
+      console.log("PDF moved to:", pdfPath);
+
+      // ✅ **For Mobile:** Open Share Dialog (For Download)
+      if (Platform.OS !== "web") {
+        await Sharing.shareAsync(pdfPath, {
+          mimeType: "application/pdf",
+          dialogTitle: "Download Gate Pass",
+        });
+      } else {
+        // ✅ **For Web:** Trigger a Download
+        const downloadLink = document.createElement("a");
+        downloadLink.href = pdfPath;
+        downloadLink.download = fileName;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+
+      Alert.alert("Success", "PDF has been downloaded successfully.");
+    } catch (error) {
+      console.error("Error generating and downloading PDF:", error);
+      Alert.alert("Error", "Unable to generate and download the QR PDF.");
+    }
+  };
+
+  const getBase64FromQR = async () => {
+    try {
+      if (!qrCodeRef.current) {
+        throw new Error("QR Code reference not found.");
+      }
+
+      // ✅ Capture the QR Code View as a base64 image
+      const base64 = await captureRef(qrCodeRef, {
+        format: "png",
+        quality: 1,
+        result: "base64",
+      });
+
+      return base64;
+    } catch (error) {
+      console.error("Error capturing QR code:", error);
+      return null;
+    }
+  };
+
   const handleGenerateQR = () => {
     console.log("Generating QR Code...");
 
@@ -103,46 +242,60 @@ const GatePassScreen = () => {
     setQrData(qrDetails);
     setModalVisible(false);
     setQrModalVisible(true);
+
+    // ✅ Clear the form after generating the QR code
+    setVisitorName("");
+    setVisitorPhone("");
+    setSelectedDate(null);
+    setSelectedTime(null);
+    setExpiry("1 Hour");
   };
 
   return (
     <ScrollView style={styles.screen}>
-
-
-      <View style={styles.header}>
-
-
-
-      <TouchableOpacity
-    style={styles.backButtonContainer} // New style to make it a larger tap area
-    onPress={() => {
-      if (navigation.canGoBack()) {
-        navigation.goBack();
-      } else {
-        Alert.alert("No previous screen", "You are already at the first screen.");
-      }
-    }}
-  >
-    <Icon name="arrow-left" size={24} color="#333" />
-  </TouchableOpacity>
-
-
-
-        <Text style={styles.headerTitle}>Gate Pass</Text>
-      </View>
-
-      <Text style={styles.label}></Text>
-      <View style={styles.categoryGrid}>
-        {categories.map((item) => (
+      <View style={styles.container}>
+        {/* 🔹 Header */}
+        <View style={styles.header}>
           <TouchableOpacity
-            key={item.value}
-            style={styles.categoryItem}
-            onPress={() => handleCategorySelection(item.value)}
+            style={styles.backButtonContainer}
+            onPress={() => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                Alert.alert(
+                  "No previous screen",
+                  "You are already at the first screen."
+                );
+              }
+            }}
           >
-            <Icon name={item.icon} size={30} color="#333" />
-            <Text style={styles.categoryText}>{item.name}</Text>
+            <Icon name="arrow-left" size={24} color="#333" />
           </TouchableOpacity>
-        ))}
+          <Text style={styles.headerTitle}>Gate Pass</Text>
+        </View>
+        {/* 🔹 Category Grid */}
+        <FlatList
+          data={categories}
+          key={numColumns} // Force re-render when changing layout
+          numColumns={numColumns}
+          keyExtractor={(item) => item.value}
+          contentContainerStyle={styles.gridContainer}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.categoryItem,
+                { width: itemSize, height: itemSize },
+              ]}
+              onPress={() => handleCategorySelection(item.value)}
+            >
+              <Image
+                source={{ uri: item.image }}
+                style={styles.categoryImage}
+              />
+              <Text style={styles.categoryText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
       </View>
 
       <Modal visible={modalVisible} transparent animationType="slide">
@@ -289,14 +442,18 @@ const GatePassScreen = () => {
         </ScrollView>
       </Modal>
 
-      {/* ✅ Fix: Properly closing JSX elements */}
       {qrData && (
         <Modal visible={qrModalVisible} transparent animationType="slide">
           <View style={styles.qrModalContainer}>
             <View style={styles.qrModalContent}>
               <Text style={styles.modalTitle}>Your Gate Pass</Text>
               <View style={styles.qrCodeWrapper}>
-                <QRCode value={JSON.stringify(qrData)} size={200} />
+                <ViewShot
+                  ref={qrCodeRef}
+                  options={{ format: "png", quality: 1 }}
+                >
+                  <QRCode value={JSON.stringify(qrData)} size={200} />
+                </ViewShot>
               </View>
               <View style={styles.detailsContainer}>
                 <Text style={styles.detailText}>
@@ -321,6 +478,26 @@ const GatePassScreen = () => {
                   {qrData.expiry}
                 </Text>
               </View>
+
+              {/* ✅ Add the Share Button */}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={async () => {
+                  if (!qrData) {
+                    Alert.alert("Error", "Generate QR code first!");
+                    return;
+                  }
+                  const qrBase64 = await getBase64FromQR();
+                  if (!qrBase64) {
+                    Alert.alert("Error", "Failed to capture QR Code.");
+                    return;
+                  }
+                  generateAndDownloadPDF(qrData, qrBase64);
+                }}
+              >
+                <Text style={styles.buttonText}>📥 Download PDF</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setQrModalVisible(false)}
@@ -351,7 +528,7 @@ const styles = StyleSheet.create({
     left: 10,
     padding: 10, // Increased padding to make the touch area larger
     zIndex: 10, // Ensure it stays above other elements
-  },  
+  },
   backButtonText: {
     fontSize: 16,
     fontWeight: "bold",
@@ -365,21 +542,34 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
   categoryGrid: {
+    width: "200%", // ✅ Ensure it spans full width
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginTop: 10,
-  },
-  categoryItem: {
+    justifyContent: "space-evenly", // ✅ Ensures items are evenly spaced
+    paddingHorizontal: 10, // ✅ Some spacing on edges
     alignItems: "center",
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: "#f9f9f9",
-    margin: 10,
-    width: "40%",
   },
-  categoryText: { fontSize: 16, marginTop: 5 },
+
+  gridContainer: { justifyContent: "center", alignItems: "center" },
+
+  categoryItem: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 1,
+    padding: 1,
+    elevation: 4, // Adds shadow
+  },
+  categoryImage: {
+    width: "80%", // Ensures image scales with the box
+    height: "70%",
+    resizeMode: "contain",
+  },
+  categoryText: { fontSize: 16, fontWeight: "bold", marginTop: 10 },
+
   closeButton: {
     backgroundColor: "#d9534f",
     padding: 10,
@@ -400,6 +590,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  container: { flex: 1, backgroundColor: "#F9FAFA", paddingTop: 20 },
   datePickerButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -439,7 +630,8 @@ const styles = StyleSheet.create({
     color: "#333",
     marginLeft: 10,
   },
-  dateText: { fontSize: 16, color: "#333", marginLeft: 10 },
+  dateText: { fontSize: 16, color: "#333", marginLeft: 10, fontWeight: "bold" },
+
   dateTimePicker: {
     flexDirection: "row",
     alignItems: "center",
@@ -467,6 +659,19 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontWeight: "bold",
     color: "#007BFF", // Blue to highlight labels
+  },
+
+  downloadButton: {
+    backgroundColor: "#007bff",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  downloadButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 
   expiryButton: {
@@ -500,11 +705,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
-    backgroundColor: "#f4f6f9",
+    backgroundColor: "#fff",
     position: "relative",
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
     color: "#1C1D22",
     textAlign: "center",
@@ -564,7 +769,7 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
-  screen: { flex: 1, backgroundColor: "#f4f6f9", padding: 20 },
+  screen: { flex: 1, backgroundColor: "#fff", padding: 20 },
   selectedExpiry: {
     backgroundColor: "#f5f5f5",
     borderColor: "#0056b3",
@@ -581,6 +786,19 @@ const styles = StyleSheet.create({
   selectedTimeSlotText: {
     color: "#fff",
   },
+  shareButton: {
+    backgroundColor: "#007bff",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  shareButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
   subHeader: {
     fontSize: 18,
     fontWeight: "bold",
