@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, Alert, Mod
 import { Ionicons } from "@expo/vector-icons";
 import { Calendar } from "react-native-calendars";
 import { useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 // Services with images
 const services = [
@@ -37,11 +38,11 @@ const MaintenanceScreen: React.FC = () => {
       {/* Navigation Bar */}
       <View style={styles.navBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back-outline" size={26} color="#333" />
         </TouchableOpacity>
         <Text style={styles.title}>Book a Service</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.navButton}>
-          <Ionicons name="home" size={28} color="black" />
+         <Icon name="home" size={22} color="#333" />
         </TouchableOpacity>
       </View>
 

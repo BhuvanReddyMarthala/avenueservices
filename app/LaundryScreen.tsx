@@ -13,6 +13,7 @@ import {
 import { Calendar } from 'react-native-calendars';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Ionicons } from '@expo/vector-icons';
 
 const LaundryScreen: React.FC = () => {
     const navigation = useNavigation();
@@ -40,7 +41,7 @@ const LaundryScreen: React.FC = () => {
                 {/* 🔹 Custom Header */}
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => setSelectedService(null)} style={styles.iconContainer}>
-                        <Icon name="arrow-left" size={iconSize} color="#333" />
+                    <Ionicons name="arrow-back-outline" size={26} color="#333" />
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>{selectedService.name}</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>

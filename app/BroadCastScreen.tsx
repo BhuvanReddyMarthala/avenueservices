@@ -5,6 +5,7 @@ import { MessageSquare, Heart, Plus, ArrowLeft, Home, X, Camera } from "lucide-r
 import { Dimensions ,StyleSheet} from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 interface Post {
   liked: boolean;
@@ -152,11 +153,11 @@ const BroadCastScreen: React.FC = ({ navigation }: any) => {
       {/* Header */}
       <View style={styles.headerContainer}>
   <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
-    <FontAwesome name="arrow-left" size={22} color="#333" />
+    <Ionicons name="arrow-back-outline" size={26} color="#333" />
   </TouchableOpacity>
   <Text style={styles.header}>Community Broadcast</Text>
   <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
-    <FontAwesome name="home" size={22} color="#333" />
+   <Icon name="home" size={22} color="#333" />
   </TouchableOpacity>
 </View>
 

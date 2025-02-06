@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from ".";
+import { Ionicons } from "@expo/vector-icons";
 
 const categories = ["All", "Vegetables", "Fruits", "Snacks", "Essentials"] as const;
 const menuItems: Record<string, { name: string; price: string; image: string }[]> = {
@@ -99,7 +100,7 @@ const GroceryScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconContainer}>
-            <Icon name="arrow-left" size={22} color="#333" />
+          <Ionicons name="arrow-back-outline" size={26} color="#333" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Groceries</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>

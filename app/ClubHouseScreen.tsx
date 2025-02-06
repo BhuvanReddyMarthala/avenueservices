@@ -15,6 +15,7 @@ import { Calendar,DateData } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 
@@ -132,13 +133,13 @@ const timeSlots = selectedOption
                 {/* Back & Home Buttons */}
                 <View style={styles.headerContainer}>
                     <TouchableOpacity onPress={() => navigation.goBack()} >
-                        <Ionicons name="arrow-back" size={24} color="#333" />
+                        <Ionicons name="arrow-back-outline" size={26} color="#333" />
                     </TouchableOpacity>
 
                     <Text style={styles.header}>Select a Screen or Party Hall</Text>
 
                     <TouchableOpacity onPress={() => navigation.navigate("Home")} >
-                        <Ionicons name="home" size={24} color="#333" />
+                       <Icon name="home" size={22} color="#333" />
                     </TouchableOpacity>
                 </View>
 

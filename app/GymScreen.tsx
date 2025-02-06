@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const timeSlots = [
     "6:00 AM", "8:00 AM", "10:00 AM",
@@ -23,7 +24,7 @@ const GymScreen: React.FC = () => {
         <View style={styles.container}>
             {/* Back Button */}
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Icon name="arrow-left" size={24} color="#333" />
+            <Ionicons name="arrow-back-outline" size={26} color="#333" />
             </TouchableOpacity>
 
             <Text style={styles.title}>Select a Date</Text>

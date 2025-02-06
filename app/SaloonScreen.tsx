@@ -12,6 +12,7 @@ import {
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const SaloonScreen: React.FC = () => {
     const navigation = useNavigation();
@@ -112,13 +113,13 @@ const SaloonScreen: React.FC = () => {
                     onPress={() => navigation.navigate("Home")}
                     style={styles.iconContainer}
                 >
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                  <Ionicons name="arrow-back-outline" size={26} color="#333" />
                 </TouchableOpacity>
 
                 <Text style={styles.header}>{selectedService ? selectedService.name : 'Book a Service'}</Text>
 
                 <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.iconContainer}>
-                    <Ionicons name="home" size={24} color="#333" />
+                    <Icon name="home" size={22} color="#333" />
                 </TouchableOpacity>
             </View>
 
