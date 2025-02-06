@@ -47,7 +47,7 @@ const MedicalScreen: React.FC = () => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation<NavigationProp>();
   const [confirmVisible, setConfirmVisible] = useState(false);
-
+  const [successMessage, setSuccessMessage] = useState("");
   const isWideScreen = width > 800;
   const numColumns = isWideScreen ? 3 : 1;
 
@@ -170,20 +170,44 @@ const MedicalScreen: React.FC = () => {
         </View>
       </Modal>
       <Modal visible={confirmVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Choose Order Type</Text>
-            {["Takeaway", "Delivery"].map((option) => (
-              <TouchableOpacity key={option} style={styles.optionButton} onPress={() => setConfirmVisible(false)}>
-                <Text style={styles.optionText}>{option}</Text>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setConfirmVisible(false)}>
-              <Text style={styles.closeText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Choose Order Type</Text>
+      {["Takeaway", "Delivery"].map((option) => (
+        <TouchableOpacity
+          key={option}
+          style={styles.optionButton}
+          onPress={() => {
+            setConfirmVisible(false);
+            setSuccessMessage(`Order placed successfully for ${option}!`);
+          }}
+        >
+          <Text style={styles.optionText}>{option}</Text>
+        </TouchableOpacity>
+      ))}
+      <TouchableOpacity style={styles.closeButton} onPress={() => setConfirmVisible(false)}>
+        <Text style={styles.closeText}>Cancel</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+<Modal visible={!!successMessage} animationType="slide" transparent>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>{successMessage}</Text>
+      <TouchableOpacity
+        style={styles.confirmButton}
+        onPress={() => {
+          setSuccessMessage("");
+          navigation.navigate("Home"); // Navigate to Home after pressing OK
+        }}
+      >
+        <Text style={styles.confirmText}>OK</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 };
