@@ -135,7 +135,7 @@ useEffect(() => {
             <Icon name="bell" size={30} color="#D32F2F" style={styles.modalIcon} />
             <Text style={styles.modalTitle}>Emergency Alert</Text>
             <Text style={styles.modalMessage}>
-                Your emergency message has been successfully sent to the Admin.
+                !! Alert posted to emergency contacts !!
             </Text>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                 <Text style={styles.closeButtonText}>OK</Text>
@@ -281,9 +281,9 @@ const styles = StyleSheet.create({
         zIndex: 1000, // Make sure it floats above all other elements
     },
     sosOuterCircle: {
-        width: 50, // Outer circle width (smaller size)
-        height: 50, // Outer circle height
-        borderRadius: 25, // Half of width/height for a perfect circle
+        width: 60, // Outer circle width (smaller size)
+        height: 60, // Outer circle height
+        borderRadius: 30, // Half of width/height for a perfect circle
         backgroundColor: '#E0E0E0', // Light gray border
         alignItems: 'center', // Center the inner circle horizontally
         justifyContent: 'center', // Center the inner circle vertically
@@ -294,9 +294,9 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
     },
     sosInnerCircle: {
-        width: 40, // Inner circle width (smaller size)
-        height: 40, // Inner circle height
-        borderRadius: 20, // Half of width/height for a perfect circle
+        width: 50, // Inner circle width (smaller size)
+        height: 50, // Inner circle height
+        borderRadius: 25, // Half of width/height for a perfect circle
         backgroundColor: '#D32F2F', // Red background for the inner circle
         alignItems: 'center', // Center the text horizontally
         justifyContent: 'center', // Center the text vertically
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     },
     sosText: {
         color: 'white', // White text color for contrast
-        fontSize: 14, // Smaller font size for the text
+        fontSize: 16, // Smaller font size for the text
         fontWeight: 'bold', // Bold text for emphasis
         textTransform: 'uppercase', // Ensure the text is all caps
     },
